@@ -159,6 +159,15 @@ tbody tr:last-child td{border-bottom:0!important}
  .tri-calendar{gap:3px!important}.tri-cal-day{min-height:58px!important;padding:4px!important}
 }
 
+
+/* Dashboard action cards requested: red, clickable, and visually consistent. */
+.dashboard-alert-card{background:#b42318!important;border:1px solid #912018!important;color:#fff!important;box-shadow:0 5px 16px rgba(180,35,24,.18)!important}
+.dashboard-alert-card .label,.dashboard-alert-card .value,.dashboard-alert-card .dashboard-alert-hint{color:#fff!important}
+.dashboard-alert-card .label{opacity:.94}
+.dashboard-alert-card .value{font-weight:850}
+.dashboard-alert-hint{font-size:12px;margin-top:7px;opacity:.95}
+.dashboard-alert-card:hover,.dashboard-alert-card:focus-visible{background:#912018!important;outline:3px solid rgba(180,35,24,.22);outline-offset:2px}
+
 </style>
 </head>
 <body>
@@ -193,7 +202,7 @@ tbody tr:last-child td{border-bottom:0!important}
 <section id="overview" class="page">
 <div class="cards">
 <div class="card"><div class="label">Active Workers</div><div class="value" id="activeWorkers">0</div></div><div class="card"><div class="label">Pending Workers</div><div class="value" id="pendingWorkers">0</div></div>
-<div class="card"><div class="label">Tricycle Contracts</div><div class="value" id="overviewTriCount">0</div></div><div class="card"><div class="label">Reports Awaiting Review</div><div class="value" id="overviewTriPending">0</div></div><div class="card"><div class="label">Outstanding Contract Balance</div><div class="value" id="overviewTriBalance">GH₵0.00</div></div><button type="button" class="card" id="overviewShortfallsCard" style="text-align:left;width:100%;cursor:pointer;color:inherit"><div class="label">Shortfalls</div><div class="value" id="overviewTriShortfalls">GH₵0.00</div><div class="muted">Click to review owing and extend a contract if needed</div></button>
+<div class="card"><div class="label">Tricycle Contracts</div><div class="value" id="overviewTriCount">0</div></div><button type="button" class="card dashboard-alert-card" id="overviewReportsCard" aria-label="Open weekly reports awaiting review" style="text-align:left;width:100%;cursor:pointer;color:inherit"><div class="label">Reports Awaiting Review</div><div class="value" id="overviewTriPending">0</div><div class="dashboard-alert-hint">Click to review weekly reports</div></button><div class="card"><div class="label">Outstanding Contract Balance</div><div class="value" id="overviewTriBalance">GH₵0.00</div></div><button type="button" class="card dashboard-alert-card" id="overviewShortfallsCard" aria-label="Open owing and weekly shortfalls" style="text-align:left;width:100%;cursor:pointer;color:inherit"><div class="label">Shortfalls</div><div class="value" id="overviewTriShortfalls">GH₵0.00</div><div class="dashboard-alert-hint">Click to review owing and extend a contract if needed</div></button>
 </div>
 <div style="display:none!important" aria-hidden="true"><span id="today">GH₵0.00</span><span id="week">GH₵0.00</span><span id="month">GH₵0.00</span><span id="alltime">GH₵0.00</span><span id="pendingCount">0</span><span id="approvedCount">0</span><span id="rejectedCount">0</span></div>
 <div class="section"><h2>Business Stock Overview</h2><div class="grid3">
@@ -622,6 +631,18 @@ $('triPaymentSave').onclick=async()=>{const a=triBuildHistoricalAllocation();if(
 window.triApproveReport=async id=>{const r=triReports.find(x=>String(x.id)===String(id));if(!r||r.status!=='pending')return;if(!confirm(`Confirm that payment of ${money(r.payment_amount)} was received for ${r.week_start} to ${r.week_end}? Approving will add this payment to the contract ledger.`))return;const q=await db.from('tricycle_weekly_reports').update({status:'approved',rejection_reason:null,reviewed_at:new Date().toISOString(),reviewed_by:session?.user?.id||null}).eq('id',id).eq('status','pending');if(q.error){msg('tricycleMsg','Could not approve report: '+q.error.message,'error');return}let emailNote='';try{const {data:notice,error:noticeError}=await db.functions.invoke('sale-email-notifications',{body:{event:'tricycle_approved',tricycle_report_id:id}});if(noticeError||notice?.success===false)emailNote=' Report approved, but worker email failed: '+(notice?.error||noticeError?.message||'email service did not confirm delivery')+'.';else emailNote=' Worker approval email sent.'}catch(e){emailNote=' Report approved, but worker email request failed: '+(e?.message||String(e))+'.'}msg('tricycleMsg','Report approved. The database approval trigger should record the payment exactly once. Verify the ledger after refresh.'+emailNote,emailNote.includes('failed')?'error':'ok');await triLoadAll()};
 window.triRejectReport=async id=>{const r=triReports.find(x=>String(x.id)===String(id));if(!r||r.status!=='pending')return;const reason=prompt('Enter the reason for rejecting this tricycle report:');if(reason===null)return;if(!reason.trim()){alert('A rejection reason is required.');return}const q=await db.from('tricycle_weekly_reports').update({status:'rejected',rejection_reason:reason.trim(),reviewed_at:new Date().toISOString(),reviewed_by:session?.user?.id||null}).eq('id',id).eq('status','pending');if(q.error){msg('tricycleMsg','Could not reject report: '+q.error.message,'error');return}let emailNote='';try{const {data:notice,error:noticeError}=await db.functions.invoke('sale-email-notifications',{body:{event:'tricycle_rejected',tricycle_report_id:id}});if(noticeError||notice?.success===false)emailNote=' Rejection saved, but worker email failed: '+(notice?.error||noticeError?.message||'email service did not confirm delivery')+'.';else emailNote=' Worker rejection email sent.'}catch(e){emailNote=' Rejection saved, but worker email request failed: '+(e?.message||String(e))+'.'}msg('tricycleMsg','Report rejected with reason saved.'+emailNote,emailNote.includes('failed')?'error':'ok');await triLoadAll()};
 $('triRefresh').onclick=triLoadAll;$('triLoadReports').onclick=triLoadAll;$('triReportFilter').onchange=triRenderReports;$('triCalendarContract').onchange=triRenderCalendar;$('triCalendarMonth').onchange=triRenderCalendar;$('triCalPrev').onclick=()=>{const x=new Date(($('triCalendarMonth').value||new Date().toISOString().slice(0,7))+'-01T00:00:00');x.setMonth(x.getMonth()-1);$('triCalendarMonth').value=x.toISOString().slice(0,7);triRenderCalendar()};$('triCalNext').onclick=()=>{const x=new Date(($('triCalendarMonth').value||new Date().toISOString().slice(0,7))+'-01T00:00:00');x.setMonth(x.getMonth()+1);$('triCalendarMonth').value=x.toISOString().slice(0,7);triRenderCalendar()};
+
+// Dashboard shortcut: Reports Awaiting Review opens the existing Weekly Report — Review & Approval panel.
+const reportsCard=document.getElementById('overviewReportsCard');
+if(reportsCard)reportsCard.addEventListener('click',function(){
+ navigateAdminSection('tricycle');
+ const panelIds=['triManagementPanel','triCreatePanel','triRegisterPanel','triPrivateProfitSection','triHistoricalPanel','triReportsPanel','triCalendarPanel','triOwingPanel','triLedgerPanel'];
+ panelIds.forEach(pid=>{const panel=document.getElementById(pid);if(panel){panel.classList.toggle('hidden',pid!=='triReportsPanel');panel.classList.toggle('tri-panel-selected',pid==='triReportsPanel')}});
+ const menu=document.getElementById('adminMenu');if(menu)menu.classList.add('hidden');
+ const toggle=document.getElementById('menuToggle');if(toggle){toggle.setAttribute('aria-expanded','false');toggle.textContent='☰ Open Menu'}
+ document.querySelectorAll('[data-tri-panel]').forEach(btn=>btn.classList.toggle('tri-menu-active',btn.dataset.triPanel==='triReportsPanel'));
+ window.scrollTo({top:0,behavior:'smooth'});
+});
 
 const shortfallsCard=document.getElementById('overviewShortfallsCard');
 if(shortfallsCard)shortfallsCard.addEventListener('click',function(){
