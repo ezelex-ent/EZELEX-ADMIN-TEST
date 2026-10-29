@@ -168,6 +168,53 @@ tbody tr:last-child td{border-bottom:0!important}
 .dashboard-alert-hint{font-size:12px;margin-top:7px;opacity:.95}
 .dashboard-alert-card:hover,.dashboard-alert-card:focus-visible{background:#912018!important;outline:3px solid rgba(180,35,24,.22);outline-offset:2px}
 
+
+
+/* Focused visual-only refinement: compact dashboard, responsive layout, premium admin profile. */
+:root{--ez-compact-ink:#172b4d;--ez-compact-muted:#64748b;--ez-compact-border:#dce5ef;--ez-compact-blue:#174a7e;--ez-compact-teal:#0f766e}
+body{font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important;letter-spacing:-.005em}
+/* Reduce the main dashboard KPI cards by approximately 20% without changing their data or behaviour. */
+#overview>.cards{gap:12px!important;align-items:stretch}
+#overview>.cards>.card{padding:16px!important;border-radius:13px!important;box-shadow:0 4px 14px rgba(21,39,64,.055)!important}
+#overview>.cards>.card .label{font-size:11px!important;letter-spacing:.045em;line-height:1.4}
+#overview>.cards>.card .value{font-size:clamp(19px,1.7vw,23px)!important;margin-top:6px;line-height:1.2}
+#overview>.cards>.dashboard-alert-card{padding:16px!important;min-height:96px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px}
+#overview>.cards>.dashboard-alert-card .dashboard-alert-hint{font-size:11px;line-height:1.4;opacity:.94}
+#overview>.section{padding:20px!important;margin-top:18px!important}
+#overview>.section .card{padding:16px!important}
+/* Keep the red action cards prominent and professionally legible. */
+#overview>.cards>.dashboard-alert-card{border:1px solid #b42332!important;background:linear-gradient(135deg,#c62836,#a91f2c)!important;color:#fff!important;box-shadow:0 5px 14px rgba(180,35,50,.18)!important}
+#overview>.cards>.dashboard-alert-card .label,#overview>.cards>.dashboard-alert-card .value,#overview>.cards>.dashboard-alert-card .dashboard-alert-hint{color:#fff!important}
+#overview>.cards>.dashboard-alert-card .value{font-weight:800}
+/* Premium administrator identity card; markup, identity and account status remain unchanged. */
+#profile>.section{padding:clamp(18px,3vw,30px)!important;background:linear-gradient(145deg,#fff 0%,#f7fafc 100%)!important;border:1px solid #dce5ef!important;border-radius:18px!important;box-shadow:0 12px 30px rgba(16,36,62,.08)!important}
+#profile>.section>h2{display:flex;align-items:center;gap:10px;color:#173d62!important;font-size:clamp(21px,2.3vw,27px)!important;margin-bottom:20px!important}
+#profile>.section>h2:before{content:"";display:inline-block;width:5px;height:27px;border-radius:5px;background:linear-gradient(180deg,#d7ad55,#0f766e)}
+#profile .profile{grid-template-columns:100px minmax(0,1fr)!important;gap:22px!important;padding:24px!important;background:linear-gradient(125deg,#f5f9fd,#eef7f7)!important;border:1px solid #dbe7ef!important;border-radius:16px!important;box-shadow:inset 0 1px 0 #fff!important;align-items:center!important}
+#profile .avatar{width:86px!important;height:86px!important;border-radius:22px!important;background:linear-gradient(145deg,#174a7e,#0f766e)!important;border:4px solid #fff!important;box-shadow:0 8px 18px rgba(23,74,126,.18)!important;font-size:27px!important;letter-spacing:.03em}
+#profile .profile h2{font-size:clamp(19px,2vw,24px)!important;color:#172b4d!important;margin:0 0 13px!important}
+#profile .profile p{margin:9px 0!important;line-height:1.6;color:#334863}
+#profile .profile p b{color:#203b58}
+#profile #adminEmail{overflow-wrap:anywhere;color:#174a7e;font-weight:650}
+#profile .profile .badge{padding:6px 12px!important;background:#dcfce7!important;color:#166534!important;border:1px solid #bbf7d0!important}
+#profile .profile .muted{font-size:12px;letter-spacing:.045em;text-transform:uppercase;color:#718096!important}
+/* Responsive dashboard and profile for tablets and phones. */
+@media(max-width:900px){#overview>.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:650px){
+ #overview>.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ #overview>.cards>.card,#overview>.cards>.dashboard-alert-card{padding:12px!important;min-height:84px;border-radius:11px!important;min-width:0}
+ #overview>.cards>.card .label{font-size:10px!important;overflow-wrap:anywhere}
+ #overview>.cards>.card .value{font-size:clamp(17px,4.5vw,21px)!important;overflow-wrap:anywhere}
+ #overview>.cards>.dashboard-alert-card .dashboard-alert-hint{font-size:10px;overflow-wrap:anywhere}
+ #overview>.section{padding:14px!important}
+ #profile>.section{padding:16px!important;margin-top:14px!important}
+ #profile .profile{grid-template-columns:1fr!important;gap:14px!important;padding:18px!important;text-align:left!important}
+ #profile .avatar{width:72px!important;height:72px!important;border-radius:19px!important;font-size:23px!important}
+ #profile .profile h2{font-size:20px!important}
+ #profile .profile p{font-size:13px;overflow-wrap:anywhere}
+}
+@media(max-width:380px){#overview>.cards{grid-template-columns:minmax(0,1fr)!important}#overview>.cards>.dashboard-alert-card{min-height:78px}}
+
 </style>
 </head>
 <body>
